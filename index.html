@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="JARVIS">
+<meta name="theme-color" content="#02060a">
+<link rel="manifest" href="manifest.webmanifest">
+<title>JARVIS</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#02060a;color:#e9fbff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+body{min-height:100svh;background:radial-gradient(circle at 50% 28%,rgba(30,190,255,.18),transparent 22%),radial-gradient(circle at 50% 40%,#071722 0,#02070c 46%,#000 100%)}
+.app{min-height:100svh;padding:calc(env(safe-area-inset-top) + 18px) 16px calc(env(safe-area-inset-bottom) + 18px);display:flex;flex-direction:column}
+.top{display:flex;justify-content:space-between;align-items:center}.brand{font-weight:900;letter-spacing:.32em;font-size:13px}.status{font-size:12px;color:#4ef0b4;display:flex;align-items:center;gap:7px}
+.dot{width:8px;height:8px;background:currentColor;border-radius:50%;box-shadow:0 0 14px currentColor}
+main{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:18px}
+.core{width:250px;height:250px;position:relative;display:grid;place-items:center}.r1,.r2,.r3{position:absolute;border-radius:50%}.r1{inset:6px;border:1px solid #13526a;box-shadow:0 0 35px #0c7598 inset}.r2{inset:32px;border:1px dashed #53e2ff;animation:spin 12s linear infinite;opacity:.7}.r3{inset:58px;border:1px solid #0a6f8d;animation:spin2 8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes spin2{to{transform:rotate(-360deg)}}
+.orb{width:124px;height:124px;border-radius:50%;display:grid;place-items:center;border:2px solid #5beaff;background:radial-gradient(circle,#fff 0 3%,#87f5ff 4% 10%,#27d9ff 11% 18%,#0e7897 27%,#072a38 47%,#031017 72%);box-shadow:0 0 18px #56e9ff,0 0 70px #0a86a9,inset 0 0 28px #60eeff;transition:.2s}
+.orb.listening{transform:scale(1.06);border-color:#ff4d78;box-shadow:0 0 22px #ff4d78,0 0 75px #b61343}.orb span{font-size:11px;font-weight:900;letter-spacing:.18em}
+h1{margin:0;font-size:25px;letter-spacing:.08em}.subtitle{margin:0;color:#7e9ca8;font-size:13px}.card{width:min(100%,560px);background:rgba(7,18,27,.88);border:1px solid #13394b;border-radius:21px;padding:14px;backdrop-filter:blur(14px)}
+.log{height:190px;overflow:auto;display:flex;flex-direction:column;gap:9px}.msg{padding:10px 12px;border-radius:14px;font-size:14px;line-height:1.4;max-width:92%}.ai{align-self:flex-start;background:#071c28;border:1px solid #124d63}.me{align-self:flex-end;background:#0b2f3b;border:1px solid #16677d}
+.controls{display:flex;gap:10px;margin-top:12px}button{flex:1;padding:14px;border-radius:14px;border:0;font-size:15px;font-weight:800;background:linear-gradient(135deg,#a2f8ff,#43dfff);color:#001017}button.alt{background:#0b1b24;color:#c8f4ff;border:1px solid #17475c}
+input{width:100%;margin-top:10px;padding:13px;border-radius:13px;border:1px solid #164559;background:#06131c;color:white;font-size:15px;outline:none}.hint{text-align:center;color:#617e89;font-size:11px;margin-top:10px}footer{text-align:center;color:#35525f;font-size:10px;padding-top:10px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="top"><div class="brand">JARVIS</div><div class="status"><span class="dot"></span>AKTİF</div></div>
+<main>
+<div class="core"><div class="r1"></div><div class="r2"></div><div class="r3"></div><div class="orb" id="orb"><span id="state">HAZIR</span></div></div>
+<div style="text-align:center"><h1>JARVIS MOBILE</h1><p class="subtitle">Python gerektirmez • iPhone uyumlu</p></div>
+<div class="card">
+<div class="log" id="log"><div class="msg ai">Merhaba. JARVIS hazır. Mikrofon düğmesine basıp konuşabilir veya aşağıya yazabilirsin.</div></div>
+<div class="controls"><button id="mic">🎙️ Konuş</button><button class="alt" id="clear">Temizle</button></div>
+<input id="text" placeholder="Jarvis'e yaz..." autocomplete="off">
+<div class="hint">Mikrofon için uygulamayı HTTPS üzerinden aç.</div>
+</div>
+</main><footer>JARVIS • NO PYTHON</footer>
+</div>
+<script>
+const log=document.getElementById('log'),mic=document.getElementById('mic'),clear=document.getElementById('clear'),orb=document.getElementById('orb'),state=document.getElementById('state'),text=document.getElementById('text');
+function add(t,w='ai'){const d=document.createElement('div');d.className='msg '+w;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}
+function speak(t){if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='tr-TR';u.rate=.97;u.pitch=.78;speechSynthesis.speak(u)}
+function reply(q){const t=q.toLocaleLowerCase('tr-TR');let r='';
+if(/selam|merhaba|hey jarvis/.test(t))r='Merhaba. Seni dinliyorum.';
+else if(t.includes('saat kaç'))r='Şu an saat '+new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})+'.';
+else if(t.includes('tarih')||t.includes('bugün günlerden'))r='Bugün '+new Date().toLocaleDateString('tr-TR',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+'.';
+else if(t.includes('adın ne'))r='Ben JARVIS. Kişisel iPhone asistanınım.';
+else if(t.includes('spotify')){r='Spotify açılıyor.';setTimeout(()=>location.href='spotify://',500)}
+else if(t.includes('youtube')){r='YouTube açılıyor.';setTimeout(()=>location.href='https://youtube.com',500)}
+else if(t.includes('google')){r='Google açılıyor.';setTimeout(()=>location.href='https://google.com',500)}
+else r='Komutunu aldım: '+q+'. Bu sürüm temel komutları çalıştırıyor.';
+add(r,'ai');speak(r)}
+function handle(q){q=q.trim();if(!q)return;add(q,'me');reply(q)}
+text.addEventListener('keydown',e=>{if(e.key==='Enter'){handle(text.value);text.value=''}});clear.onclick=()=>log.innerHTML='<div class="msg ai">Geçmiş temizlendi. JARVIS hazır.</div>';
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(SR){const rec=new SR();rec.lang='tr-TR';rec.interimResults=false;rec.continuous=false;
+rec.onstart=()=>{orb.classList.add('listening');state.textContent='DİNLİYOR';mic.textContent='🔴 Dinliyorum'};
+rec.onend=()=>{orb.classList.remove('listening');state.textContent='HAZIR';mic.textContent='🎙️ Konuş'};
+rec.onresult=e=>handle(e.results[0][0].transcript);
+rec.onerror=e=>add('Mikrofon hatası: '+e.error+'. Safari mikrofon iznini kontrol et.');
+mic.onclick=()=>{try{rec.start()}catch(e){}}}
+else{mic.onclick=()=>add('Bu tarayıcı konuşma tanımayı desteklemiyor. Aşağıdaki yazı alanını kullanabilirsin.')}
+</script>
+</body></html>
