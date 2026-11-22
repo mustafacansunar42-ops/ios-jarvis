@@ -6,6 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum macOS version")
 
+# Link the MSVC runtime statically so the plugin loads on PCs without the
+# Visual C++ Redistributable installed.
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 option(AUTOMECH_BUILD_TOOLS "Build the offline DSP test and the GUI snapshot tool" OFF)
 set(AUTOMECH_JUCE_DIR "" CACHE PATH "Optional path to a local JUCE checkout (skips the download)")
 
