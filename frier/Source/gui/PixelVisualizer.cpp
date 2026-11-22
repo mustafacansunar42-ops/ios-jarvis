@@ -11,6 +11,7 @@ constexpr float persistence = 0.6f;      // per-frame phosphor decay
 constexpr float minFrequency = 30.0f;
 constexpr float spectrumFloorDb = -84.0f;
 constexpr int idleFramesBeforeSleep = 45;
+constexpr float curveYRange = 1.5f;      // vertical extent of the transfer-curve view
 
 void blit (const juce::Image& source, juce::Image& dest)
 {
@@ -163,8 +164,7 @@ void PixelVisualizer::renderCurve()
     const float heat  = apvts.getRawParameterValue (params::id::heat)->load() * 0.01f;
     const float bias  = apvts.getRawParameterValue (params::id::bias)->load() * 0.01f;
 
-    constexpr float yRange = 1.5f;
-    auto rowFor = [] (float y) { return juce::jlimit (0, rows - 1, juce::roundToInt ((0.5f - 0.5f * y / yRange) * (float) (rows - 1))); };
+    auto rowFor = [] (float y) { return juce::jlimit (0, rows - 1, juce::roundToInt ((0.5f - 0.5f * y / curveYRange) * (float) (rows - 1))); };
     auto colFor = [this] (float x) { return juce::jlimit (0, cols - 1, juce::roundToInt ((x + 1.0f) * 0.5f * (float) (cols - 1))); };
 
     const float offset = SaturationEngine::shape (model, 0.0f, heat, bias);
