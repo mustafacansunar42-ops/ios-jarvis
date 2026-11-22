@@ -1,0 +1,51 @@
+name: FRIER VST3
+
+on:
+  push:
+    paths:
+      - "frier/**"
+      - ".github/workflows/frier-build.yml"
+  pull_request:
+    paths:
+      - "frier/**"
+      - ".github/workflows/frier-build.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows
+            os: windows-latest
+            cmake_args: ""
+          - name: macOS
+            os: macos-14
+            cmake_args: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache JUCE download
+        uses: actions/cache@v4
+        with:
+          path: frier/build/_deps/juce-src
+          key: juce-8.0.9-${{ runner.os }}
+
+      - name: Configure
+        shell: bash
+        run: cmake -S frier -B frier/build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
+
+      - name: Build VST3
+        shell: bash
+        run: cmake --build frier/build --config Release --target FRIER_VST3 --parallel 4
+
+      - name: Upload VST3
+        uses: actions/upload-artifact@v4
+        with:
+          name: FRIER-VST3-${{ matrix.name }}
+          path: frier/build/FRIER_artefacts/Release/VST3/FRIER.vst3
+          if-no-files-found: error
