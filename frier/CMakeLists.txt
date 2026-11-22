@@ -6,6 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Windows: link the C/C++ runtime statically, so the plugin loads even on
+# machines without (the right version of) the Visual C++ Redistributable.
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 # ------------------------------------------------------------------------------
 # Identity. The developer name lives in exactly one place: this variable.
 # It reaches C++ through JUCE's generated JucePlugin_Manufacturer macro,
